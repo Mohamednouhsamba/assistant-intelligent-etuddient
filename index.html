@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Intelligent pour Étudiants</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#09090d;
+color:white;
+text-align:center;
+}
+header{
+padding:22px;
+border-bottom:1px solid #292929;
+color:#e9bd69;
+font-size:21px;
+font-weight:bold;
+}
+main{max-width:750px;margin:60px auto;padding:20px}
+h1{font-size:42px}
+.gold{color:#e9bd69}
+p{color:#b9b9c2;line-height:1.8}
+select,textarea,button{
+padding:13px;
+border-radius:10px;
+font-size:15px;
+}
+select{
+background:#19191f;color:white;border:1px solid #444;
+}
+textarea{
+width:100%;height:110px;background:#17171d;
+color:white;border:1px solid #444;margin-top:20px;
+}
+button{
+background:#e9bd69;color:#111;border:none;
+font-weight:bold;cursor:pointer;margin:10px;
+}
+#answer{
+background:#17171d;border:1px solid #333;
+padding:20px;border-radius:12px;text-align:left;
+white-space:pre-wrap;min-height:60px;
+}
+footer{padding:25px;color:#777}
+</style>
+</head>
+<body>
+<header>✦ Assistant Intelligent pour Étudiants</header>
+
+<main>
+<h1>Apprends mieux.<br><span class="gold">Va plus loin.</span></h1>
+
+<p id="description">
+Ton assistant intelligent pour comprendre les cours,
+résoudre les exercices et progresser.
+</p>
+
+<select id="language" onchange="changeLanguage()">
+<option value="fr">Français</option>
+<option value="en">English</option>
+</select>
+
+<h2 id="questionTitle">Comment puis-je t'aider ?</h2>
+
+<textarea id="question" placeholder="Écris ta question ici..."></textarea>
+<br>
+
+<button id="askButton" onclick="askQuestion()">Poser ma question</button>
+
+<div id="answer">La réponse apparaîtra ici.</div>
+
+<p>✦ Apprendre • Comprendre • Réussir</p>
+</main>
+
+<footer>© 2026 Assistant Intelligent pour Étudiants</footer>
+
+<script>
+function changeLanguage(){
+const en=document.getElementById('language').value==='en';
+document.documentElement.lang=en?'en':'fr';
+document.getElementById('description').textContent=en
+?'Your intelligent study assistant to understand lessons and solve exercises.'
+:'Ton assistant intelligent pour comprendre les cours, résoudre les exercices et progresser.';
+document.getElementById('questionTitle').textContent=en
+?'How can I help you?':'Comment puis-je t’aider ?';
+document.getElementById('question').placeholder=en
+?'Write your question here...':'Écris ta question ici...';
+document.getElementById('askButton').textContent=en
+?'Ask my question':'Poser ma question';
+document.getElementById('answer').textContent=en
+?'Your answer will appear here.':'La réponse apparaîtra ici.';
+}
+function askQuestion(){
+const en=document.getElementById('language').value==='en';
+const q=document.getElementById('question').value.trim();
+const answer=document.getElementById('answer');
+if(!q){
+answer.textContent=en?'Please enter a question first.':'Écris d’abord une question.';
+return;
+}
+answer.textContent=en
+?'The AI service is not connected yet. We will connect the real AI in the next step.'
+:'Le service d’intelligence artificielle n’est pas encore connecté. Nous allons le connecter à la prochaine étape.';
+}
+</script>
+</body>
+</html>
