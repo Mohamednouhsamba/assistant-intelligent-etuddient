@@ -1,202 +1,482 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>المساعد الذكي لطلاب</title>
+<title>المساعد الذكي للطلاب</title>
 
 <style>
-* {
-    box-sizing: border-box;
+:root {
+  --gold: #d4af37;
+  --bg: #101114;
+  --panel: #1b1c22;
+  --text: #f5f5f5;
+  --muted: #b7b7c2;
 }
-
+* { box-sizing: border-box; }
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #101010;
-    color: white;
-    text-align: center;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
 }
-
 header {
-    padding: 30px 15px;
-    color: #d4af37;
+  padding: 22px 16px;
+  border-bottom: 1px solid #333;
+  text-align: center;
 }
-
-h1 {
-    font-size: 30px;
+header h1 { color: var(--gold); margin: 8px 0; }
+header p { color: var(--muted); }
+select, button, textarea {
+  font: inherit;
 }
-
-.container {
-    max-width: 700px;
-    margin: 20px auto;
-    padding: 25px;
+select, button {
+  padding: 11px 14px;
+  border-radius: 9px;
+  cursor: pointer;
 }
-
-textarea {
-    width: 100%;
-    height: 130px;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 16px;
-}
-
-button, select {
-    padding: 12px 20px;
-    margin: 10px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button {
-    background: #d4af37;
-    color: #000;
-    font-weight: bold;
-}
-
-button:disabled {
-    opacity: 0.6;
-}
-
-#answer {
-    margin-top: 20px;
-    padding: 15px;
-    background: #222;
-    border-radius: 10px;
-    line-height: 1.8;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    text-align: left;
-}
-
 select {
-    background: white;
-    color: black;
+  background: #fff;
+  color: #111;
+  border: 0;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+.sidebar, .main-panel {
+  background: var(--panel);
+  border: 1px solid #333;
+  border-radius: 14px;
+  padding: 18px;
+}
+.sidebar h3 { color: var(--gold); }
+.tool-button, .history-button {
+  display: block;
+  width: 100%;
+  text-align: start;
+  margin: 8px 0;
+  background: #292a31;
+  color: white;
+  border: 1px solid #444;
+}
+.tool-button.active {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.gold-button {
+  background: var(--gold);
+  color: #111;
+  border: 0;
+  font-weight: bold;
+}
+.secondary-button {
+  background: #292a31;
+  color: white;
+  border: 1px solid #444;
+}
+textarea {
+  width: 100%;
+  min-height: 125px;
+  padding: 14px;
+  margin: 12px 0;
+  border-radius: 10px;
+  border: 1px solid #555;
+  background: #111216;
+  color: white;
+  resize: vertical;
+}
+#answer {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.9;
+  padding: 16px;
+  background: #111216;
+  border-radius: 10px;
+  margin-top: 16px;
+  min-height: 90px;
+}
+.status { color: var(--muted); font-size: 14px; }
+.history-button { font-size: 14px; }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@media(max-width:700px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { order: 2; }
+  .main-panel { order: 1; }
 }
 </style>
 </head>
 
 <body>
-
 <header>
-    <h1>المساعد الذكي لطلاب</h1>
-    <p id="subtitle">Votre assistant intelligent pour les études</p>
-
-    <select id="language" onchange="changeLanguage()">
-        <option value="fr">Français</option>
-        <option value="en">English</option>
-    </select>
+  <h1 id="siteTitle">المساعد الذكي للطلاب</h1>
+  <p id="siteSubtitle">مساعدك الذكي للتعلم والنجاح</p>
+  <label id="languageLabel" for="language">لغة الموقع:</label>
+  <select id="language" onchange="changeLanguage()">
+    <option value="ar">العربية</option>
+    <option value="fr">Français</option>
+    <option value="en">English</option>
+  </select>
 </header>
 
-<main class="container">
+<div class="layout">
+  <aside class="sidebar">
+    <h3 id="toolsTitle">الأدوات التعليمية</h3>
+    <button class="tool-button active" data-tool="general" onclick="selectTool('general')" id="toolGeneral">💬 مساعد عام</button>
+    <button class="tool-button" data-tool="lessons" onclick="selectTool('lessons')" id="toolLessons">📖 شرح الدروس</button>
+    <button class="tool-button" data-tool="exercises" onclick="selectTool('exercises')" id="toolExercises">🧮 حل التمارين</button>
+    <button class="tool-button" data-tool="programming" onclick="selectTool('programming')" id="toolProgramming">💻 البرمجة</button>
+    <button class="tool-button" data-tool="cyber" onclick="selectTool('cyber')" id="toolCyber">🔐 الشبكات والأمن</button>
 
-    <h2 id="questionTitle">Posez votre question</h2>
+    <hr style="border-color:#444;margin:20px 0">
 
-    <textarea id="question"
-        placeholder="Écrivez votre question ici..."></textarea>
+    <h3 id="historyTitle">سجل المحادثات</h3>
+    <div id="historyList"></div>
+    <button class="secondary-button" id="clearHistory" onclick="clearHistory()">🗑️ حذف السجل</button>
+    <p class="status" id="privacyNote">السجل محفوظ في هذا المتصفح فقط.</p>
+  </aside>
 
-    <br>
+  <main class="main-panel">
+    <h2 id="questionTitle">ما الذي تريد تعلمه اليوم؟</h2>
+    <p class="status" id="toolDescription">اكتب سؤالك وسأساعدك.</p>
 
-    <button id="askButton" onclick="askQuestion()">
-        Poser la question
-    </button>
+    <textarea id="question" placeholder="اكتب سؤالك هنا..."></textarea>
 
-    <div id="answer">
-        Votre réponse apparaîtra ici.
+    <div class="actions">
+      <button class="gold-button" id="askButton" onclick="askQuestion()">إرسال السؤال</button>
+      <button class="secondary-button" id="newChat" onclick="newChat()">محادثة جديدة</button>
     </div>
 
-</main>
+    <div id="answer" aria-live="polite">ستظهر الإجابة هنا.</div>
+  </main>
+</div>
 
 <script>
 const WORKER_URL =
-"https://assistant-etudiants-ai.mednouhsamba182.workers.dev/";
+  "https://assistant-etudiants-ai.mednouhsamba182.workers.dev/";
+
+const translations = {
+  ar: {
+    dir: "rtl",
+    title: "المساعد الذكي للطلاب",
+    subtitle: "مساعدك الذكي للتعلم والنجاح",
+    language: "لغة الموقع:",
+    tools: "الأدوات التعليمية",
+    general: "💬 مساعد عام",
+    lessons: "📖 شرح الدروس",
+    exercises: "🧮 حل التمارين",
+    programming: "💻 البرمجة",
+    cyber: "🔐 الشبكات والأمن",
+    history: "سجل المحادثات",
+    clear: "🗑️ حذف السجل",
+    privacy: "السجل محفوظ في هذا المتصفح فقط.",
+    heading: "ما الذي تريد تعلمه اليوم؟",
+    descriptions: {
+      general: "اكتب سؤالك وسأساعدك.",
+      lessons: "اكتب اسم الدرس الذي تريد فهمه.",
+      exercises: "أرسل التمرين وسأساعدك في حله خطوة بخطوة.",
+      programming: "اسأل عن البرمجة أو أرسل الكود الذي تريد فهمه.",
+      cyber: "تعلم الشبكات ومفاهيم الأمن السيبراني."
+    },
+    placeholder: "اكتب سؤالك هنا...",
+    ask: "إرسال السؤال",
+    new: "محادثة جديدة",
+    initial: "ستظهر الإجابة هنا.",
+    empty: "اكتب سؤالك أولًا.",
+    thinking: "جارٍ التفكير... انتظر قليلًا.",
+    connection: "تعذر الحصول على إجابة: ",
+    noAnswer: "لم تصل إجابة.",
+    deleted: "تم حذف سجل المحادثات.",
+    untitled: "سؤال جديد"
+  },
+  fr: {
+    dir: "ltr",
+    title: "Assistant intelligent pour étudiants",
+    subtitle: "Votre assistant intelligent pour apprendre et réussir",
+    language: "Langue du site :",
+    tools: "Outils pédagogiques",
+    general: "💬 Assistant général",
+    lessons: "📖 Expliquer les cours",
+    exercises: "🧮 Résoudre des exercices",
+    programming: "💻 Programmation",
+    cyber: "🔐 Réseaux et cybersécurité",
+    history: "Historique des conversations",
+    clear: "🗑️ Effacer l'historique",
+    privacy: "L'historique est enregistré dans ce navigateur uniquement.",
+    heading: "Que souhaitez-vous apprendre aujourd'hui ?",
+    descriptions: {
+      general: "Écrivez votre question et je vous aiderai.",
+      lessons: "Indiquez le cours que vous souhaitez comprendre.",
+      exercises: "Envoyez l'exercice pour le résoudre étape par étape.",
+      programming: "Posez une question sur la programmation ou envoyez votre code.",
+      cyber: "Apprenez les réseaux et les notions de cybersécurité."
+    },
+    placeholder: "Écrivez votre question ici...",
+    ask: "Envoyer la question",
+    new: "Nouvelle conversation",
+    initial: "Votre réponse apparaîtra ici.",
+    empty: "Veuillez d'abord écrire votre question.",
+    thinking: "Réflexion en cours... Veuillez patienter.",
+    connection: "Impossible d'obtenir une réponse : ",
+    noAnswer: "Aucune réponse reçue.",
+    deleted: "Historique des conversations supprimé.",
+    untitled: "Nouvelle question"
+  },
+  en: {
+    dir: "ltr",
+    title: "Smart Student Assistant",
+    subtitle: "Your intelligent assistant for learning and success",
+    language: "Website language:",
+    tools: "Learning tools",
+    general: "💬 General assistant",
+    lessons: "📖 Explain lessons",
+    exercises: "🧮 Solve exercises",
+    programming: "💻 Programming",
+    cyber: "🔐 Networks and cybersecurity",
+    history: "Conversation history",
+    clear: "🗑️ Clear history",
+    privacy: "History is saved in this browser only.",
+    heading: "What would you like to learn today?",
+    descriptions: {
+      general: "Write your question and I will help.",
+      lessons: "Enter the lesson you want to understand.",
+      exercises: "Send an exercise and I will help solve it step by step.",
+      programming: "Ask about programming or send code you want to understand.",
+      cyber: "Learn about networks and cybersecurity concepts."
+    },
+    placeholder: "Write your question here...",
+    ask: "Ask question",
+    new: "New conversation",
+    initial: "Your answer will appear here.",
+    empty: "Please write your question first.",
+    thinking: "Thinking... Please wait.",
+    connection: "Could not get an answer: ",
+    noAnswer: "No answer received.",
+    deleted: "Conversation history deleted.",
+    untitled: "New question"
+  }
+};
+
+let currentTool = "general";
+let currentChatId = null;
+let chats = [];
+
+try {
+  chats = JSON.parse(localStorage.getItem("studentAssistantChats") || "[]");
+  if (!Array.isArray(chats)) chats = [];
+} catch {
+  chats = [];
+}
+
+function lang() {
+  return document.getElementById("language").value;
+}
+
+function saveChats() {
+  try {
+    localStorage.setItem("studentAssistantChats", JSON.stringify(chats));
+  } catch (error) {
+    console.error("Could not save chat history:", error);
+  }
+}
 
 function changeLanguage() {
-    const lang = document.getElementById("language").value;
+  const t = translations[lang()];
+  document.documentElement.lang = lang();
+  document.documentElement.dir = t.dir;
 
-    document.getElementById("subtitle").textContent =
-        lang === "en"
-        ? "Your intelligent study assistant"
-        : "Votre assistant intelligent pour les études";
+  document.getElementById("siteTitle").textContent = t.title;
+  document.getElementById("siteSubtitle").textContent = t.subtitle;
+  document.getElementById("languageLabel").textContent = t.language;
+  document.getElementById("toolsTitle").textContent = t.tools;
+  document.getElementById("toolGeneral").textContent = t.general;
+  document.getElementById("toolLessons").textContent = t.lessons;
+  document.getElementById("toolExercises").textContent = t.exercises;
+  document.getElementById("toolProgramming").textContent = t.programming;
+  document.getElementById("toolCyber").textContent = t.cyber;
+  document.getElementById("historyTitle").textContent = t.history;
+  document.getElementById("clearHistory").textContent = t.clear;
+  document.getElementById("privacyNote").textContent = t.privacy;
+  document.getElementById("questionTitle").textContent = t.heading;
+  document.getElementById("toolDescription").textContent =
+    t.descriptions[currentTool];
+  document.getElementById("question").placeholder = t.placeholder;
+  document.getElementById("askButton").textContent = t.ask;
+  document.getElementById("newChat").textContent = t.new;
 
-    document.getElementById("questionTitle").textContent =
-        lang === "en" ? "Ask your question" : "Posez votre question";
+  if (!currentChatId) {
+    document.getElementById("answer").textContent = t.initial;
+  }
 
-    document.getElementById("question").placeholder =
-        lang === "en"
-        ? "Write your question here..."
-        : "Écrivez votre question ici...";
+  renderHistory();
+}
 
-    document.getElementById("askButton").textContent =
-        lang === "en" ? "Ask question" : "Poser la question";
+function selectTool(tool) {
+  currentTool = tool;
+  document.querySelectorAll(".tool-button").forEach(button => {
+    button.classList.toggle("active", button.dataset.tool === tool);
+  });
 
-    document.getElementById("answer").textContent =
-        lang === "en"
-        ? "Your answer will appear here."
-        : "Votre réponse apparaîtra ici.";
+  const t = translations[lang()];
+  document.getElementById("toolDescription").textContent =
+    t.descriptions[tool];
+}
+
+function newChat() {
+  currentChatId = null;
+  document.getElementById("question").value = "";
+  document.getElementById("answer").textContent = translations[lang()].initial;
+}
+
+function renderHistory() {
+  const list = document.getElementById("historyList");
+  list.replaceChildren();
+
+  const t = translations[lang()];
+
+  chats.slice().reverse().forEach(chat => {
+    const button = document.createElement("button");
+    button.className = "history-button";
+    button.textContent = chat.title || t.untitled;
+    button.onclick = () => openChat(chat.id);
+    list.appendChild(button);
+  });
+}
+
+function openChat(id) {
+  const chat = chats.find(item => item.id === id);
+  if (!chat) return;
+
+  currentChatId = id;
+  document.getElementById("question").value = chat.question;
+  document.getElementById("answer").textContent =
+    chat.answer || translations[lang()].initial;
+  selectTool(chat.tool || "general");
+}
+
+function clearHistory() {
+  if (!confirm(
+    lang() === "en"
+      ? "Delete all saved conversations in this browser?"
+      : lang() === "fr"
+      ? "Supprimer toutes les conversations enregistrées dans ce navigateur ?"
+      : "هل تريد حذف جميع المحادثات المحفوظة في هذا المتصفح؟"
+  )) return;
+
+  chats = [];
+  currentChatId = null;
+  saveChats();
+  renderHistory();
+  document.getElementById("answer").textContent = translations[lang()].deleted;
+}
+
+function toolInstruction(tool, language) {
+  const instructions = {
+    ar: {
+      general: "أجب عن سؤال الطالب بوضوح.",
+      lessons: "اشرح الدرس للطالب بطريقة مبسطة، مع أمثلة مناسبة.",
+      exercises: "ساعد الطالب على حل التمرين خطوة بخطوة واشرح طريقة الحل.",
+      programming: "اشرح البرمجة بوضوح، وقدم أمثلة تعليمية عند الحاجة.",
+      cyber: "اشرح الشبكات والأمن السيبراني لأغراض تعليمية ودفاعية."
+    },
+    fr: {
+      general: "Répondez clairement à la question de l'étudiant.",
+      lessons: "Expliquez le cours simplement avec des exemples.",
+      exercises: "Aidez l'étudiant à résoudre l'exercice étape par étape.",
+      programming: "Expliquez la programmation clairement avec des exemples.",
+      cyber: "Expliquez les réseaux et la cybersécurité à des fins éducatives et défensives."
+    },
+    en: {
+      general: "Answer the student's question clearly.",
+      lessons: "Explain the lesson simply with useful examples.",
+      exercises: "Help the student solve the exercise step by step.",
+      programming: "Explain programming clearly with educational examples.",
+      cyber: "Explain networking and cybersecurity for educational and defensive purposes."
+    }
+  };
+
+  return instructions[language][tool];
 }
 
 async function askQuestion() {
-    const lang = document.getElementById("language").value;
-    const question = document.getElementById("question").value.trim();
-    const answer = document.getElementById("answer");
-    const button = document.getElementById("askButton");
+  const t = translations[lang()];
+  const questionBox = document.getElementById("question");
+  const answerBox = document.getElementById("answer");
+  const askButton = document.getElementById("askButton");
+  const question = questionBox.value.trim();
 
-    if (!question) {
-        answer.textContent =
-            lang === "en"
-            ? "Please write a question first."
-            : "Veuillez écrire une question d'abord.";
-        return;
+  if (!question) {
+    answerBox.textContent = t.empty;
+    return;
+  }
+
+  askButton.disabled = true;
+  answerBox.textContent = t.thinking;
+
+  const fullQuestion =
+    toolInstruction(currentTool, lang()) +
+    "\nStudent's question:\n" + question;
+
+  try {
+    const response = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: fullQuestion })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.details || data.error || ("HTTP " + response.status));
     }
 
-    button.disabled = true;
-    answer.textContent =
-        lang === "en"
-        ? "Thinking... Please wait."
-        : "Réflexion en cours... Veuillez patienter.";
-
-    try {
-        const response = await fetch(WORKER_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                question: question
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.details || data.error || "Request failed"
-            );
-        }
-
-        if (!data.answer) {
-            throw new Error(data.error || "No answer received");
-        }
-
-        answer.textContent = data.answer;
-
-    } catch (error) {
-        console.error(error);
-
-        answer.textContent =
-            (lang === "en"
-            ? "Connection error: "
-            : "Erreur de connexion : ")
-            + error.message;
-
-    } finally {
-        button.disabled = false;
+    if (!data.answer) {
+      throw new Error(t.noAnswer);
     }
+
+    answerBox.textContent = data.answer;
+
+    const chat = {
+      id: currentChatId || (
+        Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
+      ),
+      title: question.length > 42 ? question.slice(0, 42) + "…" : question,
+      question,
+      answer: data.answer,
+      tool: currentTool,
+      date: new Date().toISOString()
+    };
+
+    currentChatId = chat.id;
+    const existingIndex = chats.findIndex(item => item.id === chat.id);
+
+    if (existingIndex >= 0) {
+      chats[existingIndex] = chat;
+    } else {
+      chats.push(chat);
+    }
+
+    chats = chats.slice(-50);
+    saveChats();
+    renderHistory();
+
+  } catch (error) {
+    console.error(error);
+    answerBox.textContent = t.connection + error.message;
+  } finally {
+    askButton.disabled = false;
+  }
 }
-</script>
 
+changeLanguage();
+</script>
 </body>
 </html>
